@@ -1,209 +1,133 @@
-
-USE master;
+-- ===================== CREAR BASE =====================
+CREATE DATABASE Musica;
+GO
+USE Musica;
 GO
 
-CREATE OR ALTER PROCEDURE sp_CrearBaseDeDatosYTablas_Musica
+-- ===================== PROCEDIMIENTO =====================
+CREATE OR ALTER PROCEDURE CrearTablasMusica
 AS
 BEGIN
-    SET NOCOUNT ON;
+    -- Eliminar si existen
+    IF OBJECT_ID('CursoUsuario','U') IS NOT NULL DROP TABLE CursoUsuario;
+    IF OBJECT_ID('CursoCategoria','U') IS NOT NULL DROP TABLE CursoCategoria;
+    IF OBJECT_ID('Certificados','U') IS NOT NULL DROP TABLE Certificados;
+    IF OBJECT_ID('Instructores','U') IS NOT NULL DROP TABLE Instructores;
+    IF OBJECT_ID('Categorias','U') IS NOT NULL DROP TABLE Categorias;
+    IF OBJECT_ID('Cursos','U') IS NOT NULL DROP TABLE Cursos;
+    IF OBJECT_ID('Usuarios','U') IS NOT NULL DROP TABLE Usuarios;
 
-    IF DB_ID('PlataformaMusica') IS NOT NULL
-        DROP DATABASE PlataformaMusica;
+    -- Usuarios
+    CREATE TABLE Usuarios(
+        id_usuario INT PRIMARY KEY IDENTITY,
+        nombre VARCHAR(50) NOT NULL
+    );
 
-    CREATE DATABASE PlataformaMusica;
+    -- Cursos
+    CREATE TABLE Cursos(
+        id_curso INT PRIMARY KEY IDENTITY,
+        titulo VARCHAR(50) NOT NULL
+    );
 
-    EXEC('
-        USE PlataformaMusica;
+    -- CategorÃ­as
+    CREATE TABLE Categorias(
+        id_categoria INT PRIMARY KEY IDENTITY,
+        nombre VARCHAR(50) NOT NULL
+    );
 
-        -- Tabla Usuarios
-        CREATE TABLE Usuarios (
-            UsuarioID INT PRIMARY KEY IDENTITY,
-            Nombre NVARCHAR(100) NOT NULL,
-            Email NVARCHAR(100) NOT NULL UNIQUE,
-            FechaRegistro DATE NOT NULL DEFAULT GETDATE()
-        );
+    -- Instructores
+    CREATE TABLE Instructores(
+        id_instructor INT PRIMARY KEY IDENTITY,
+        nombre VARCHAR(50) NOT NULL
+    );
 
-        -- Tabla Cursos
-        CREATE TABLE Cursos (
-            CursoID INT PRIMARY KEY IDENTITY,
-            Titulo NVARCHAR(100) NOT NULL,
-            Descripcion NVARCHAR(255),
-            FechaCreacion DATE NOT NULL DEFAULT GETDATE()
-        );
+    -- Certificados
+    CREATE TABLE Certificados(
+        id_certificado INT PRIMARY KEY IDENTITY,
+        id_usuario INT FOREIGN KEY REFERENCES Usuarios(id_usuario),
+        id_curso INT FOREIGN KEY REFERENCES Cursos(id_curso)
+    );
 
-        -- Tabla Categorias
-        CREATE TABLE Categorias (
-            CategoriaID INT PRIMARY KEY IDENTITY,
-            Nombre NVARCHAR(50) NOT NULL UNIQUE
-        );
+    -- Pivote: Cursoâ€“CategorÃ­a
+    CREATE TABLE CursoCategoria(
+        id_curso INT FOREIGN KEY REFERENCES Cursos(id_curso),
+        id_categoria INT FOREIGN KEY REFERENCES Categorias(id_categoria),
+        PRIMARY KEY(id_curso,id_categoria)
+    );
 
-        -- Tabla Instructores
-        CREATE TABLE Instructores (
-            InstructorID INT PRIMARY KEY IDENTITY,
-            Nombre NVARCHAR(100) NOT NULL,
-            Especialidad NVARCHAR(100),
-            CONSTRAINT CK_Especialidad CHECK (LEN(Especialidad) > 3)
-        );
+    -- Pivote: Cursoâ€“Usuario
+    CREATE TABLE CursoUsuario(
+        id_curso INT FOREIGN KEY REFERENCES Cursos(id_curso),
+        id_usuario INT FOREIGN KEY REFERENCES Usuarios(id_usuario),
+        PRIMARY KEY(id_curso,id_usuario)
+    );
 
-        -- Tabla Certificados
-        CREATE TABLE Certificados (
-            CertificadoID INT PRIMARY KEY IDENTITY,
-            UsuarioID INT NOT NULL,
-            CursoID INT NOT NULL,
-            FechaEntrega DATE NOT NULL DEFAULT GETDATE(),
-            FOREIGN KEY (UsuarioID) REFERENCES Usuarios(UsuarioID),
-            FOREIGN KEY (CursoID) REFERENCES Cursos(CursoID)
-        );
+    -- ===================== INSERTS =====================
+    -- Usuarios
+    INSERT INTO Usuarios(nombre) VALUES
+    ('U1'),('U2'),('U3'),('U4'),('U5'),
+    ('U6'),('U7'),('U8'),('U9'),('U10');
 
-        -- Tabla pivote CursoCategoria
-        CREATE TABLE CursoCategoria (
-            CursoID INT NOT NULL,
-            CategoriaID INT NOT NULL,
-            PRIMARY KEY (CursoID, CategoriaID),
-            FOREIGN KEY (CursoID) REFERENCES Cursos(CursoID),
-            FOREIGN KEY (CategoriaID) REFERENCES Categorias(CategoriaID)
-        );
+    -- Cursos
+    INSERT INTO Cursos(titulo) VALUES
+    ('C1'),('C2'),('C3'),('C4'),('C5'),
+    ('C6'),('C7'),('C8'),('C9'),('C10');
 
-        -- Tabla pivote CursoUsuario
-        CREATE TABLE CursoUsuario (
-            CursoID INT NOT NULL,
-            UsuarioID INT NOT NULL,
-            FechaInscripcion DATE NOT NULL DEFAULT GETDATE(),
-            PRIMARY KEY (CursoID, UsuarioID),
-            FOREIGN KEY (CursoID) REFERENCES Cursos(CursoID),
-            FOREIGN KEY (UsuarioID) REFERENCES Usuarios(UsuarioID)
-        );
-    ');
+    -- CategorÃ­as
+    INSERT INTO Categorias(nombre) VALUES
+    ('Cat1'),('Cat2'),('Cat3'),('Cat4'),('Cat5'),
+    ('Cat6'),('Cat7'),('Cat8'),('Cat9'),('Cat10');
+
+    -- Instructores
+    INSERT INTO Instructores(nombre) VALUES
+    ('I1'),('I2'),('I3'),('I4'),('I5'),
+    ('I6'),('I7'),('I8'),('I9'),('I10');
+
+    -- Certificados
+    INSERT INTO Certificados(id_usuario,id_curso) VALUES
+    (1,1),(2,2),(3,3),(4,4),(5,5),
+    (6,6),(7,7),(8,8),(9,9),(10,10);
+
+    -- Cursoâ€“CategorÃ­a
+    INSERT INTO CursoCategoria VALUES
+    (1,1),(2,2),(3,3),(4,4),(5,5),
+    (6,6),(7,7),(8,8),(9,9),(10,10);
+
+    -- Cursoâ€“Usuario
+    INSERT INTO CursoUsuario VALUES
+    (1,1),(2,2),(3,3),(4,4),(5,5),
+    (6,6),(7,7),(8,8),(9,9),(10,10);
 END;
 GO
 
-EXEC sp_CrearBaseDeDatosYTablas_Musica;
+-- ===================== EJECUTAR =====================
+EXEC CrearTablasMusica;
 GO
 
-USE PlataformaMusica;
+-- ===================== VISTAS (SIN JOINS) =====================
+CREATE OR ALTER VIEW Reporte_Usuarios AS
+SELECT id_usuario, nombre FROM Usuarios;
 GO
 
--- Usuarios
-INSERT INTO Usuarios (Nombre, Email) VALUES
-('Ana Torres','ana@gmail.com'),
-('Luis Pérez','luis@gmail.com'),
-('María López','maria@gmail.com'),
-('Juan Ríos','juanr@gmail.com'),
-('Carmen Díaz','carmen@gmail.com'),
-('Pedro Muñoz','pedro@gmail.com'),
-('Lucía Fernández','lucia@gmail.com'),
-('Hugo Ortega','hugo@gmail.com'),
-('Sofía Romero','sofia@gmail.com'),
-('Diego Vargas','diego@gmail.com');
+CREATE OR ALTER VIEW Reporte_Cursos AS
+SELECT id_curso, titulo FROM Cursos;
+GO
 
--- Cursos
-INSERT INTO Cursos (Titulo, Descripcion) VALUES
-('Guitarra Básica','Aprender guitarra desde cero'),
-('Guitarra Intermedia','Técnicas intermedias de guitarra'),
-('Piano Básico','Aprender piano desde cero'),
-('Piano Intermedio','Técnicas intermedias de piano'),
-('Canto Inicial','Técnicas básicas de canto'),
-('Canto Avanzado','Técnicas avanzadas de canto'),
-('Batería Básica','Aprender batería desde cero'),
-('Batería Intermedia','Técnicas intermedias de batería'),
-('Violín Básico','Aprender violín desde cero'),
-('Violín Avanzado','Técnicas avanzadas de violín');
+CREATE OR ALTER VIEW Reporte_Categorias AS
+SELECT id_categoria, nombre FROM Categorias;
+GO
 
--- Categorías
-INSERT INTO Categorias (Nombre) VALUES
-('Guitarra'),
-('Piano'),
-('Canto'),
-('Batería'),
-('Violín'),
-('Bajo'),
-('Saxofón'),
-('Flauta'),
-('Producción'),
-('Teoría');
+CREATE OR ALTER VIEW Reporte_Instructores AS
+SELECT id_instructor, nombre FROM Instructores;
+GO
 
--- Instructores
-INSERT INTO Instructores (Nombre, Especialidad) VALUES
-('Carlos Ruiz','Guitarra'),
-('Laura Medina','Piano'),
-('Jorge Silva','Canto'),
-('Ana Beltrán','Batería'),
-('Esteban Cruz','Violín'),
-('Paula Ortiz','Bajo'),
-('Nicolás Bravo','Saxofón'),
-('Sandra Ramos','Flauta'),
-('Diego Peña','Producción'),
-('María Gómez','Teoría');
+CREATE OR ALTER VIEW Reporte_Certificados AS
+SELECT id_certificado, id_usuario, id_curso FROM Certificados;
+GO
 
--- Certificados
-INSERT INTO Certificados (UsuarioID, CursoID) VALUES
-(1,1),(2,2),(3,3),(4,4),(5,5),
-(6,6),(7,7),(8,8),(9,9),(10,10);
-
--- Curso-Categoría
-INSERT INTO CursoCategoria (CursoID, CategoriaID) VALUES
-(1,1),(2,1),(3,2),(4,2),(5,3),
-(6,3),(7,4),(8,4),(9,5),(10,5);
-
--- Curso-Usuario (Inscripciones)
-INSERT INTO CursoUsuario (CursoID, UsuarioID) VALUES
-(1,1),(2,2),(3,3),(4,4),(5,5),
-(6,6),(7,7),(8,8),(9,9),(10,10);
-
-CREATE OR ALTER VIEW Vista_UsuariosCursos AS
-SELECT u.Nombre AS Usuario, c.Titulo AS Curso
-FROM CursoUsuario cu
-JOIN Usuarios u ON cu.UsuarioID = u.UsuarioID
-JOIN Cursos c ON cu.CursoID = c.CursoID;
-
-CREATE OR ALTER VIEW Vista_CursosCategorias AS
-SELECT c.Titulo AS Curso, cat.Nombre AS Categoria
-FROM CursoCategoria cc
-JOIN Cursos c ON cc.CursoID = c.CursoID
-JOIN Categorias cat ON cc.CategoriaID = cat.CategoriaID;
-
-CREATE OR ALTER VIEW Vista_Instructores AS
-SELECT Nombre AS Instructor, Especialidad
-FROM Instructores;
-
-CREATE OR ALTER VIEW Vista_Certificados AS
-SELECT u.Nombre AS Usuario, c.Titulo AS Curso
-FROM Certificados ce
-JOIN Usuarios u ON ce.UsuarioID = u.UsuarioID
-JOIN Cursos c ON ce.CursoID = c.CursoID;
-
-CREATE OR ALTER VIEW Vista_UsuariosPorCurso AS
-SELECT c.Titulo AS Curso, COUNT(*) AS TotalUsuarios
-FROM CursoUsuario cu
-JOIN Cursos c ON cu.CursoID = c.CursoID
-GROUP BY c.Titulo;
-
--- 1) Usuarios sin certificados
-SELECT Nombre AS Usuario
-FROM Usuarios
-WHERE UsuarioID NOT IN (SELECT UsuarioID FROM Certificados);
-
--- 2) Cursos sin usuarios inscritos
-SELECT Titulo AS Curso
-FROM Cursos
-WHERE CursoID NOT IN (SELECT CursoID FROM CursoUsuario);
-
--- 3) Cursos con más de un inscrito
-SELECT c.Titulo AS Curso, COUNT(*) AS Inscritos
-FROM CursoUsuario cu
-JOIN Cursos c ON cu.CursoID = c.CursoID
-GROUP BY c.Titulo
-HAVING COUNT(*) > 1;
-
--- 4) Cantidad de cursos por categoría
-SELECT cat.Nombre AS Categoria, COUNT(*) AS TotalCursos
-FROM CursoCategoria cc
-JOIN Categorias cat ON cc.CategoriaID = cat.CategoriaID
-GROUP BY cat.Nombre;
-
--- 5) Usuarios inscritos en más de un curso
-SELECT u.Nombre AS Usuario, COUNT(*) AS Cursos
-FROM CursoUsuario cu
-JOIN Usuarios u ON cu.UsuarioID = u.UsuarioID
-GROUP BY u.Nombre
-HAVING COUNT(*) > 1;
+-- ===================== CONSULTAS DE PRUEBA =====================
+SELECT * FROM Reporte_Usuarios;
+SELECT * FROM Reporte_Cursos;
+SELECT * FROM Reporte_Categorias;
+SELECT * FROM Reporte_Instructores;
+SELECT * FROM Reporte_Certificados;
