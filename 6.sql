@@ -2,18 +2,18 @@
 USE master;
 GO
 
-CREATE OR ALTER PROCEDURE CrearBase_DeDatosYTablas_Arte_Simplificado
+CREATE OR ALTER PROCEDURE CrearBase_DeDatosYTablas_Ciencia_Simplificado
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF DB_ID('PlataformaArte') IS NOT NULL
-        DROP DATABASE PlataformaArte;
+    IF DB_ID('PlataformaCiencia') IS NOT NULL
+        DROP DATABASE PlataformaCiencia;
 
-    CREATE DATABASE PlataformaArte;
+    CREATE DATABASE PlataformaCiencia;
 
     EXEC('
-        USE PlataformaArte;
+        USE PlataformaCiencia;
 
         -- ===================== TABLAS =====================
         CREATE TABLE Usuarios (
@@ -89,10 +89,10 @@ END;
 GO
 
 -- ===================== EJECUTAR =====================
-EXEC CrearBase_DeDatosYTablas_Arte_Simplificado;
+EXEC CrearBase_DeDatosYTablas_Ciencia_Simplificado;
 GO
 
-USE PlataformaArte;
+USE PlataformaCiencia;
 GO
 
 -- ===================== VISTAS (SIN JOINS) =====================
