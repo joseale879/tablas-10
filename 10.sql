@@ -20,31 +20,25 @@ BEGIN
         -- Tabla Usuarios
         CREATE TABLE Usuarios (
             UsuarioID INT PRIMARY KEY IDENTITY,
-            Nombre NVARCHAR(100) NOT NULL,
-            Email NVARCHAR(100) NOT NULL UNIQUE,
-            FechaRegistro DATE NOT NULL DEFAULT GETDATE()
+            Nombre NVARCHAR(50) NOT NULL
         );
 
         -- Tabla Cursos
         CREATE TABLE Cursos (
             CursoID INT PRIMARY KEY IDENTITY,
-            Titulo NVARCHAR(100) NOT NULL,
-            Descripcion NVARCHAR(255),
-            FechaCreacion DATE NOT NULL DEFAULT GETDATE()
+            Titulo NVARCHAR(50) NOT NULL
         );
 
         -- Tabla Categorias
         CREATE TABLE Categorias (
             CategoriaID INT PRIMARY KEY IDENTITY,
-            Nombre NVARCHAR(50) NOT NULL UNIQUE
+            Nombre NVARCHAR(50) NOT NULL
         );
 
         -- Tabla Instructores
         CREATE TABLE Instructores (
             InstructorID INT PRIMARY KEY IDENTITY,
-            Nombre NVARCHAR(100) NOT NULL,
-            Especialidad NVARCHAR(100),
-            CONSTRAINT CK_Especialidad CHECK (LEN(Especialidad) > 3)
+            Nombre NVARCHAR(50) NOT NULL
         );
 
         -- Tabla Certificados
@@ -52,7 +46,6 @@ BEGIN
             CertificadoID INT PRIMARY KEY IDENTITY,
             UsuarioID INT NOT NULL,
             CursoID INT NOT NULL,
-            FechaEntrega DATE NOT NULL DEFAULT GETDATE(),
             FOREIGN KEY (UsuarioID) REFERENCES Usuarios(UsuarioID),
             FOREIGN KEY (CursoID) REFERENCES Cursos(CursoID)
         );
@@ -70,7 +63,6 @@ BEGIN
         CREATE TABLE CursoUsuario (
             CursoID INT NOT NULL,
             UsuarioID INT NOT NULL,
-            FechaInscripcion DATE NOT NULL DEFAULT GETDATE(),
             PRIMARY KEY (CursoID, UsuarioID),
             FOREIGN KEY (CursoID) REFERENCES Cursos(CursoID),
             FOREIGN KEY (UsuarioID) REFERENCES Usuarios(UsuarioID)
@@ -79,76 +71,45 @@ BEGIN
 END;
 GO
 
+-- Ejecutar creaciÃ³n
 EXEC sp_CrearBaseDeDatosYTablas_Salud;
 GO
 
 -- ========================================
--- 2. INSERTAR DATOS (10 por tabla)
+-- 2. INSERTAR DATOS (10 por tabla, abreviados)
 -- ========================================
 USE PlataformaSalud;
 GO
 
 -- Usuarios
-INSERT INTO Usuarios (Nombre, Email) VALUES
-('Ana Torres','ana@gmail.com'),
-('Luis Pérez','luis@gmail.com'),
-('María López','maria@gmail.com'),
-('Juan Ríos','juanr@gmail.com'),
-('Carmen Díaz','carmen@gmail.com'),
-('Pedro Muñoz','pedro@gmail.com'),
-('Lucía Fernández','lucia@gmail.com'),
-('Hugo Ortega','hugo@gmail.com'),
-('Sofía Romero','sofia@gmail.com'),
-('Diego Vargas','diego@gmail.com');
+INSERT INTO Usuarios (Nombre) VALUES
+('U1'),('U2'),('U3'),('U4'),('U5'),
+('U6'),('U7'),('U8'),('U9'),('U10');
 
 -- Cursos
-INSERT INTO Cursos (Titulo, Descripcion) VALUES
-('Anatomía Básica','Curso inicial de anatomía'),
-('Anatomía Avanzada','Anatomía avanzada'),
-('Nutrición','Curso de nutrición'),
-('Enfermería Básica','Curso inicial de enfermería'),
-('Enfermería Avanzada','Curso avanzado de enfermería'),
-('Fisioterapia','Introducción a fisioterapia'),
-('Psicología','Curso inicial de psicología'),
-('Salud Pública','Curso de salud comunitaria'),
-('Medicina General','Curso de medicina general'),
-('Primeros Auxilios','Curso básico de primeros auxilios');
+INSERT INTO Cursos (Titulo) VALUES
+('C1'),('C2'),('C3'),('C4'),('C5'),
+('C6'),('C7'),('C8'),('C9'),('C10');
 
--- Categorías
+-- CategorÃ­as
 INSERT INTO Categorias (Nombre) VALUES
-('Anatomía'),
-('Nutrición'),
-('Enfermería'),
-('Fisioterapia'),
-('Psicología'),
-('Salud Pública'),
-('Medicina'),
-('Primeros Auxilios'),
-('Terapias'),
-('Bienestar');
+('Cat1'),('Cat2'),('Cat3'),('Cat4'),('Cat5'),
+('Cat6'),('Cat7'),('Cat8'),('Cat9'),('Cat10');
 
 -- Instructores
-INSERT INTO Instructores (Nombre, Especialidad) VALUES
-('Carlos Ruiz','Anatomía'),
-('Laura Medina','Nutrición'),
-('Jorge Silva','Enfermería'),
-('Ana Beltrán','Fisioterapia'),
-('Esteban Cruz','Psicología'),
-('Paula Ortiz','Salud Pública'),
-('Nicolás Bravo','Medicina'),
-('Sandra Ramos','Primeros Auxilios'),
-('Diego Peña','Terapias'),
-('María Gómez','Bienestar');
+INSERT INTO Instructores (Nombre) VALUES
+('I1'),('I2'),('I3'),('I4'),('I5'),
+('I6'),('I7'),('I8'),('I9'),('I10');
 
 -- Certificados
 INSERT INTO Certificados (UsuarioID, CursoID) VALUES
 (1,1),(2,2),(3,3),(4,4),(5,5),
 (6,6),(7,7),(8,8),(9,9),(10,10);
 
--- Curso-Categoría
+-- Curso-CategorÃ­a
 INSERT INTO CursoCategoria (CursoID, CategoriaID) VALUES
-(1,1),(2,1),(3,2),(4,3),(5,3),
-(6,4),(7,5),(8,6),(9,7),(10,8);
+(1,1),(2,2),(3,3),(4,4),(5,5),
+(6,6),(7,7),(8,8),(9,9),(10,10);
 
 -- Curso-Usuario (Inscripciones)
 INSERT INTO CursoUsuario (CursoID, UsuarioID) VALUES
@@ -156,65 +117,29 @@ INSERT INTO CursoUsuario (CursoID, UsuarioID) VALUES
 (6,6),(7,7),(8,8),(9,9),(10,10);
 
 -- ========================================
--- 3. VISTAS SIMPLES (5)
+-- 3. VISTAS SIMPLES (5 sin joins complicados)
 -- ========================================
-CREATE OR ALTER VIEW Vista_UsuariosCursos AS
-SELECT u.Nombre AS Usuario, c.Titulo AS Curso
-FROM CursoUsuario cu
-JOIN Usuarios u ON cu.UsuarioID = u.UsuarioID
-JOIN Cursos c ON cu.CursoID = c.CursoID;
+CREATE OR ALTER VIEW Vista_Usuarios AS
+SELECT UsuarioID, Nombre FROM Usuarios;
 
-CREATE OR ALTER VIEW Vista_CursosCategorias AS
-SELECT c.Titulo AS Curso, cat.Nombre AS Categoria
-FROM CursoCategoria cc
-JOIN Cursos c ON cc.CursoID = c.CursoID
-JOIN Categorias cat ON cc.CategoriaID = cat.CategoriaID;
+CREATE OR ALTER VIEW Vista_Cursos AS
+SELECT CursoID, Titulo FROM Cursos;
+
+CREATE OR ALTER VIEW Vista_Categorias AS
+SELECT CategoriaID, Nombre FROM Categorias;
 
 CREATE OR ALTER VIEW Vista_Instructores AS
-SELECT Nombre AS Instructor, Especialidad
-FROM Instructores;
+SELECT InstructorID, Nombre FROM Instructores;
 
 CREATE OR ALTER VIEW Vista_Certificados AS
-SELECT u.Nombre AS Usuario, c.Titulo AS Curso
-FROM Certificados ce
-JOIN Usuarios u ON ce.UsuarioID = u.UsuarioID
-JOIN Cursos c ON ce.CursoID = c.CursoID;
-
-CREATE OR ALTER VIEW Vista_UsuariosPorCurso AS
-SELECT c.Titulo AS Curso, COUNT(*) AS TotalUsuarios
-FROM CursoUsuario cu
-JOIN Cursos c ON cu.CursoID = c.CursoID
-GROUP BY c.Titulo;
+SELECT CertificadoID, UsuarioID, CursoID FROM Certificados;
+GO
 
 -- ========================================
--- 4. REPORTES SIMPLES (5)
+-- 4. CONSULTAS DE PRUEBA
 -- ========================================
--- 1) Usuarios sin certificados
-SELECT Nombre AS Usuario
-FROM Usuarios
-WHERE UsuarioID NOT IN (SELECT UsuarioID FROM Certificados);
-
--- 2) Cursos sin usuarios inscritos
-SELECT Titulo AS Curso
-FROM Cursos
-WHERE CursoID NOT IN (SELECT CursoID FROM CursoUsuario);
-
--- 3) Cursos con más de un inscrito
-SELECT c.Titulo AS Curso, COUNT(*) AS Inscritos
-FROM CursoUsuario cu
-JOIN Cursos c ON cu.CursoID = c.CursoID
-GROUP BY c.Titulo
-HAVING COUNT(*) > 1;
-
--- 4) Cantidad de cursos por categoría
-SELECT cat.Nombre AS Categoria, COUNT(*) AS TotalCursos
-FROM CursoCategoria cc
-JOIN Categorias cat ON cc.CategoriaID = cat.CategoriaID
-GROUP BY cat.Nombre;
-
--- 5) Usuarios inscritos en más de un curso
-SELECT u.Nombre AS Usuario, COUNT(*) AS Cursos
-FROM CursoUsuario cu
-JOIN Usuarios u ON cu.UsuarioID = u.UsuarioID
-GROUP BY u.Nombre
-HAVING COUNT(*) > 1;
+SELECT * FROM Vista_Usuarios;
+SELECT * FROM Vista_Cursos;
+SELECT * FROM Vista_Categorias;
+SELECT * FROM Vista_Instructores;
+SELECT * FROM Vista_Certificados;
