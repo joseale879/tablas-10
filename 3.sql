@@ -86,61 +86,61 @@ GO
 -- Usuarios
 INSERT INTO Usuarios (Nombre, Email) VALUES
 ('Ana Torres','ana@gmail.com'),
-('Luis Pérez','luis@gmail.com'),
-('María López','maria@gmail.com'),
-('Juan Ríos','juanr@gmail.com'),
-('Carmen Díaz','carmen@gmail.com'),
-('Pedro Muñoz','pedro@gmail.com'),
-('Lucía Fernández','lucia@gmail.com'),
+('Luis PÃ©rez','luis@gmail.com'),
+('MarÃ­a LÃ³pez','maria@gmail.com'),
+('Juan RÃ­os','juanr@gmail.com'),
+('Carmen DÃ­az','carmen@gmail.com'),
+('Pedro MuÃ±oz','pedro@gmail.com'),
+('LucÃ­a FernÃ¡ndez','lucia@gmail.com'),
 ('Hugo Ortega','hugo@gmail.com'),
-('Sofía Romero','sofia@gmail.com'),
+('SofÃ­a Romero','sofia@gmail.com'),
 ('Diego Vargas','diego@gmail.com');
 
 -- Cursos
 INSERT INTO Cursos (Titulo, Descripcion) VALUES
-('Inglés Básico','Curso de inglés inicial'),
-('Inglés Intermedio','Curso de inglés intermedio'),
-('Inglés Avanzado','Curso de inglés avanzado'),
-('Francés Básico','Curso de francés inicial'),
-('Francés Intermedio','Curso de francés intermedio'),
-('Francés Avanzado','Curso de francés avanzado'),
-('Alemán Básico','Curso de alemán inicial'),
-('Alemán Intermedio','Curso de alemán intermedio'),
-('Alemán Avanzado','Curso de alemán avanzado'),
-('Italiano Básico','Curso de italiano inicial');
+('InglÃ©s BÃ¡sico','Curso de inglÃ©s inicial'),
+('InglÃ©s Intermedio','Curso de inglÃ©s intermedio'),
+('InglÃ©s Avanzado','Curso de inglÃ©s avanzado'),
+('FrancÃ©s BÃ¡sico','Curso de francÃ©s inicial'),
+('FrancÃ©s Intermedio','Curso de francÃ©s intermedio'),
+('FrancÃ©s Avanzado','Curso de francÃ©s avanzado'),
+('AlemÃ¡n BÃ¡sico','Curso de alemÃ¡n inicial'),
+('AlemÃ¡n Intermedio','Curso de alemÃ¡n intermedio'),
+('AlemÃ¡n Avanzado','Curso de alemÃ¡n avanzado'),
+('Italiano BÃ¡sico','Curso de italiano inicial');
 
--- Categorías
+-- CategorÃ­as
 INSERT INTO Categorias (Nombre) VALUES
-('Inglés'),
-('Francés'),
-('Alemán'),
+('InglÃ©s'),
+('FrancÃ©s'),
+('AlemÃ¡n'),
 ('Italiano'),
-('Español'),
-('Mandarín'),
-('Japonés'),
-('Portugués'),
+('EspaÃ±ol'),
+('MandarÃ­n'),
+('JaponÃ©s'),
+('PortuguÃ©s'),
 ('Ruso'),
 ('Coreano');
 
 -- Instructores
 INSERT INTO Instructores (Nombre, Especialidad) VALUES
-('Carlos Ruiz','Inglés'),
-('Laura Medina','Francés'),
-('Jorge Silva','Alemán'),
-('Ana Beltrán','Italiano'),
-('Esteban Cruz','Español'),
-('Paula Ortiz','Mandarín'),
-('Nicolás Bravo','Japonés'),
-('Sandra Ramos','Portugués'),
-('Diego Peña','Ruso'),
-('María Gómez','Coreano');
+('Carlos Ruiz','InglÃ©s'),
+('Laura Medina','FrancÃ©s'),
+('Jorge Silva','AlemÃ¡n'),
+('Ana BeltrÃ¡n','Italiano'),
+('Esteban Cruz','EspaÃ±ol'),
+('Paula Ortiz','MandarÃ­n'),
+('NicolÃ¡s Bravo','JaponÃ©s'),
+('Sandra Ramos','PortuguÃ©s'),
+('Diego PeÃ±a','Ruso'),
+('MarÃ­a GÃ³mez','Coreano');
 
 -- Certificados
 INSERT INTO Certificados (UsuarioID, CursoID) VALUES
 (1,1),(2,2),(3,3),(4,4),(5,5),
 (6,6),(7,7),(8,8),(9,9),(10,10);
 
--- Curso-Categoría
+-- Curso-CategorÃ­a
 INSERT INTO CursoCategoria (CursoID, CategoriaID) VALUES
 (1,1),(2,1),(3,1),(4,2),(5,2),
 (6,2),(7,3),(8,3),(9,3),(10,4);
@@ -162,48 +162,35 @@ FROM CursoCategoria cc
 JOIN Cursos c ON cc.CursoID = c.CursoID
 JOIN Categorias cat ON cc.CategoriaID = cat.CategoriaID;
 
-CREATE OR ALTER VIEW Vista_Instructores AS
-SELECT Nombre AS Instructor, Especialidad
+
+
+CREATE OR ALTER VIEW Reporte_Instructores AS
+SELECT id_instructor, nombre
 FROM Instructores;
+GO
 
-CREATE OR ALTER VIEW Vista_Certificados AS
-SELECT u.Nombre AS Usuario, c.Titulo AS Curso
-FROM Certificados ce
-JOIN Usuarios u ON ce.UsuarioID = u.UsuarioID
-JOIN Cursos c ON ce.CursoID = c.CursoID;
+CREATE OR ALTER VIEW Reporte_Certificados AS
+SELECT id_certificado, id_usuario, id_curso
+FROM Certificados;
+GO
 
-CREATE OR ALTER VIEW Vista_UsuariosPorCurso AS
-SELECT c.Titulo AS Curso, COUNT(*) AS TotalUsuarios
-FROM CursoUsuario cu
-JOIN Cursos c ON cu.CursoID = c.CursoID
-GROUP BY c.Titulo;
+CREATE OR ALTER VIEW Reporte_CursoUsuario AS
+SELECT id_curso, id_usuario
+FROM CursoUsuario;
+GO
 
--- 1) Usuarios sin certificados
-SELECT Nombre AS Usuario
-FROM Usuarios
-WHERE UsuarioID NOT IN (SELECT UsuarioID FROM Certificados);
+CREATE OR ALTER VIEW Reporte_CursoCategoria AS
+SELECT id_curso, id_categoria
+FROM CursoCategoria;
+GO
 
--- 2) Cursos sin usuarios inscritos
-SELECT Titulo AS Curso
-FROM Cursos
-WHERE CursoID NOT IN (SELECT CursoID FROM CursoUsuario);
+CREATE OR ALTER VIEW Reporte_Usuarios AS
+SELECT id_usuario, nombre
+FROM Usuarios;
+GO
 
--- 3) Cursos con más de un inscrito
-SELECT c.Titulo AS Curso, COUNT(*) AS Inscritos
-FROM CursoUsuario cu
-JOIN Cursos c ON cu.CursoID = c.CursoID
-GROUP BY c.Titulo
-HAVING COUNT(*) > 1;
-
--- 4) Cantidad de cursos por categoría
-SELECT cat.Nombre AS Categoria, COUNT(*) AS TotalCursos
-FROM CursoCategoria cc
-JOIN Categorias cat ON cc.CategoriaID = cat.CategoriaID
-GROUP BY cat.Nombre;
-
--- 5) Usuarios inscritos en más de un curso
-SELECT u.Nombre AS Usuario, COUNT(*) AS Cursos
-FROM CursoUsuario cu
-JOIN Usuarios u ON cu.UsuarioID = u.UsuarioID
-GROUP BY u.Nombre
-HAVING COUNT(*) > 1;
+SELECT * FROM Reporte_Instructores;
+SELECT * FROM Reporte_Certificados;
+SELECT * FROM Reporte_CursoUsuario;
+SELECT * FROM Reporte_CursoCategoria;
+SELECT * FROM Reporte_Usuarios;
